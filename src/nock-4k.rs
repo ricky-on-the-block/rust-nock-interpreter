@@ -114,3 +114,58 @@ pub fn tis(noun1: &Noun, noun2: &Noun) -> Noun {
         Noun::Atom(1)
     }
 }
+
+/// Implements the Nock '/' operator, pronounced 'fas'
+///
+/// The fas operator performs tree addressing in Nock.
+/// The root of the tree is 1; the left child of any node n is 2n; the right child is 2n+1.
+///
+/// # Arguments
+///
+/// * `address` - A reference to the Noun representing the address
+/// * `tree` - A reference to the Noun representing the tree to be accessed
+///
+/// # Returns
+///
+/// The Noun at the specified address in the tree
+///
+/// # Panics
+///
+/// - When the address is 0
+/// - When the address is a Cell
+/// - When no valid child is found at the given address
+///
+/// # Examples
+///
+/// ```
+/// use nock_interpreter::{Noun, fas};
+/// let tree = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
+/// assert_eq!(fas(&Noun::Atom(2), &tree), Noun::Atom(1));
+/// ```
+pub fn fas(address: &Noun, tree: &Noun) -> Noun {
+    match address {
+        Noun::Atom(0) => panic!("fas operation does not support 0 address"),
+        Noun::Atom(1) => tree.clone(),
+        Noun::Atom(n) if *n == 2 || *n == 3 => match tree {
+            Noun::Cell(head, tail) => {
+                if *n == 2 {
+                    (**head).clone()
+                } else {
+                    (**tail).clone()
+                }
+            }
+            Noun::Atom(_) => panic!("fas operation found no child at this address"),
+        },
+        Noun::Atom(n) => match tree {
+            Noun::Cell(..) => fas(&Noun::Atom(2 + n % 2), &fas(&Noun::Atom(n / 2), tree)),
+            Noun::Atom(_) => panic!("fas operation found no child at this address"),
+        },
+        Noun::Cell(..) => panic!("fas operation does not support cell address"),
+    }
+}
+
+// okay its not enough to just pass head and tail, because i need to focus on the node
+// if the number is greater than 3, and im doing things recursively, i only care what
+// the values are from 4-7 inclusive. that tells me whether head or tail gets passed in
+// so if its 4 or 5, i subtract 2 and pass in head
+// if its 6 or 7, i subtract 4 and pass in tail

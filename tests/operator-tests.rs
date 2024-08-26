@@ -167,7 +167,7 @@ fn test_fas_out_of_bounds() {
 #[test]
 fn test_fas_on_atom() {
     let noun = Noun::Atom(42);
-    assert_eq!(fas(&Noun::Atom(1), Noun::Atom(42)));
+    assert_eq!(fas(&Noun::Atom(1), &noun), Noun::Atom(42));
 }
 
 #[test]
