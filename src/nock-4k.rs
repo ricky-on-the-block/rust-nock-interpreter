@@ -79,3 +79,38 @@ pub fn lus(noun: &Noun) -> Noun {
         Noun::Cell(_, _) => panic!("lus operation is not defined for cells, only atoms"),
     }
 }
+
+/// Implements the Nock '=' operator, pronounced 'tis'
+///
+/// The tis operator compares two Nouns for equality.
+/// In Nock, 0 represents true (equal) and 1 represents false (not equal).
+///
+/// # Arguments
+///
+/// * `noun1` - A reference to the first Noun to be compared
+/// * `noun2` - A reference to the second Noun to be compared
+///
+/// # Returns
+///
+/// * `Noun::Atom(0)` if the inputs are equal
+/// * `Noun::Atom(1)` if the inputs are not equal
+///
+/// # Examples
+///
+/// ```
+/// use nock_interpreter::{Noun, tis};
+/// let atom1 = Noun::Atom(42);
+/// let atom2 = Noun::Atom(42);
+/// assert_eq!(tis(&atom1, &atom2), Noun::Atom(0));
+///
+/// let cell1 = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
+/// let cell2 = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(3)));
+/// assert_eq!(tis(&cell1, &cell2), Noun::Atom(1));
+/// ```
+pub fn tis(noun1: &Noun, noun2: &Noun) -> Noun {
+    if noun1 == noun2 {
+        Noun::Atom(0)
+    } else {
+        Noun::Atom(1)
+    }
+}
