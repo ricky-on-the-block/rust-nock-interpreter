@@ -163,9 +163,3 @@ pub fn fas(address: &Noun, tree: &Noun) -> Noun {
         Noun::Cell(..) => panic!("fas operation does not support cell address"),
     }
 }
-
-// okay its not enough to just pass head and tail, because i need to focus on the node
-// if the number is greater than 3, and im doing things recursively, i only care what
-// the values are from 4-7 inclusive. that tells me whether head or tail gets passed in
-// so if its 4 or 5, i subtract 2 and pass in head
-// if its 6 or 7, i subtract 4 and pass in tail
