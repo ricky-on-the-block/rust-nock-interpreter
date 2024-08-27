@@ -203,3 +203,16 @@ pub fn hax(address: &Noun, replacement: &Noun, tree: &mut Noun) -> Noun {
     *tree_at_addr = replacement.clone();
     tree.clone()
 }
+
+pub fn tar(noun: &mut Noun) -> Noun {
+    match noun {
+        Noun::Atom(_) => panic!("tar cannot be performed on an atom"),
+        Noun::Cell(subject, formula) => match &**formula {
+            Noun::Cell(op, args) => match &**op {
+                Noun::Atom(0) => fas(args, subject).clone(),
+                _ => panic!("TODO: Unimplemented"),
+            },
+            _ => panic!("TODO: Unimplemented"),
+        },
+    }
+}
