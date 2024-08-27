@@ -117,17 +117,17 @@ pub fn tis(noun1: &Noun, noun2: &Noun) -> Noun {
 
 /// Implements the Nock '/' operator, pronounced 'fas'
 ///
-/// The fas operator performs tree addressing in Nock.
+/// Performs tree addressing in Nock.
 /// The root of the tree is 1; the left child of any node n is 2n; the right child is 2n+1.
 ///
 /// # Arguments
 ///
 /// * `address` - A reference to the Noun representing the address
-/// * `tree` - A reference to the Noun representing the tree to be accessed
+/// * `tree` - A mutable reference to the Noun representing the tree to be accessed
 ///
 /// # Returns
 ///
-/// The Noun at the specified address in the tree
+/// A mutable reference to the Noun at the specified address in the tree
 ///
 /// # Panics
 ///
@@ -139,27 +139,67 @@ pub fn tis(noun1: &Noun, noun2: &Noun) -> Noun {
 ///
 /// ```
 /// use nock_interpreter::{Noun, fas};
-/// let tree = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
-/// assert_eq!(fas(&Noun::Atom(2), &tree), Noun::Atom(1));
+/// let mut tree = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
+/// assert_eq!(*fas(&Noun::Atom(2), &mut tree), Noun::Atom(1));
 /// ```
-pub fn fas(address: &Noun, tree: &Noun) -> Noun {
+pub fn fas<'a>(address: &Noun, tree: &'a mut Noun) -> &'a mut Noun {
     match address {
         Noun::Atom(0) => panic!("fas operation does not support 0 address"),
-        Noun::Atom(1) => tree.clone(),
+        Noun::Atom(1) => tree,
         Noun::Atom(n) if *n == 2 || *n == 3 => match tree {
             Noun::Cell(head, tail) => {
                 if *n == 2 {
-                    (**head).clone()
+                    head
                 } else {
-                    (**tail).clone()
+                    tail
                 }
             }
             Noun::Atom(_) => panic!("fas operation found no child at this address"),
         },
         Noun::Atom(n) => match tree {
-            Noun::Cell(..) => fas(&Noun::Atom(2 + n % 2), &fas(&Noun::Atom(n / 2), tree)),
+            Noun::Cell(..) => fas(&Noun::Atom(2 + n % 2), fas(&Noun::Atom(n / 2), tree)),
             Noun::Atom(_) => panic!("fas operation found no child at this address"),
         },
         Noun::Cell(..) => panic!("fas operation does not support cell address"),
     }
+}
+
+/// Implements the Nock '#' operator, pronounced 'hax'
+///
+/// Replaces a part of a Noun tree at a specified address with a replacement Noun.
+/// Modifies the original tree in place and returns a clone of the modified tree.
+///
+/// # Arguments
+///
+/// * `address` - A reference to a Noun representing the address in the tree where the replacement should occur
+/// * `replacement` - A reference to the Noun that will replace the existing Noun at the specified address
+/// * `tree` - A mutable reference to the Noun tree that will be modified
+///
+/// # Returns
+///
+/// A clone of the modified Noun tree
+///
+/// # Panics
+///
+/// This function will panic in the same cases as the `fas` function:
+/// - When the address is 0
+/// - When the address is a Cell
+/// - When no valid child is found at the given address
+///
+/// # Examples
+///
+/// ```
+/// use nock_interpreter::{Noun, hax};
+/// let mut tree = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
+/// let result = hax(&Noun::Atom(2), &Noun::Atom(3), &mut tree);
+/// assert_eq!(result, Noun::Cell(Box::new(Noun::Atom(3)), Box::new(Noun::Atom(2))));
+/// ```
+///
+/// # Note
+///
+/// This function modifies the original tree and also returns a clone of the modified tree.
+pub fn hax(address: &Noun, replacement: &Noun, tree: &mut Noun) -> Noun {
+    let tree_at_addr = fas(address, tree);
+    *tree_at_addr = replacement.clone();
+    tree.clone()
 }
