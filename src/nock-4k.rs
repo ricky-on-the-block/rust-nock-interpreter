@@ -210,6 +210,7 @@ pub fn tar(noun: &mut Noun) -> Noun {
         Noun::Cell(subject, formula) => match &**formula {
             Noun::Cell(op, args) => match &**op {
                 Noun::Atom(0) => fas(args, subject).clone(),
+                Noun::Atom(1) => *args.clone(),
                 _ => panic!("TODO: Unimplemented"),
             },
             _ => panic!("TODO: Unimplemented"),
