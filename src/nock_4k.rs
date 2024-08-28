@@ -10,9 +10,49 @@ impl fmt::Display for Noun {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Noun::Atom(value) => write!(f, "{}", value),
-            Noun::Cell(head, tail) => write!(f, "[{} {}]", head, tail),
+            Noun::Cell(x, y) => write!(f, "[{} {}]", x, y),
         }
     }
+}
+
+impl Noun {
+    // Helper function to create an Atom
+    pub fn atom(value: u64) -> Self {
+        Noun::Atom(value)
+    }
+
+    // Helper function to create a Cell
+    pub fn cell(left: Noun, right: Noun) -> Self {
+        Noun::Cell(Box::new(left), Box::new(right))
+    }
+}
+
+#[macro_export]
+macro_rules! noun {
+    // Rule 1: Match a single literal (base case for atoms)
+    [$num:literal] => {
+        Noun::Atom($num)
+    };
+
+    // Rule 2: Match two literals (simple cell)
+    [$num1:literal $num2:literal] => {
+        Noun::cell(Noun::Atom($num1), Noun::Atom($num2))
+    };
+
+    // Rule 3: Match two nested structures
+    [[$($left:tt)+] [$($right:tt)+]] => {
+        Noun::cell(noun![$($left)+], noun![$($right)+])
+    };
+
+    // Rule 4: Match a nested structure on the left and a single token on the right
+    [[$($left:tt)+] $right:tt] => {
+        Noun::cell(noun![$($left)+], noun![$right])
+    };
+
+    // Rule 5: Match a single token on the left and a nested structure on the right
+    [$left:tt [$($right:tt)+]] => {
+        Noun::cell(noun![$left], noun![$($right)+])
+    };
 }
 
 /// Implements the Nock '?' operator, pronounced 'wut'
@@ -147,11 +187,11 @@ pub fn fas<'a>(address: &Noun, tree: &'a mut Noun) -> &'a mut Noun {
         Noun::Atom(0) => panic!("fas operation does not support 0 address"),
         Noun::Atom(1) => tree,
         Noun::Atom(n) if *n == 2 || *n == 3 => match tree {
-            Noun::Cell(head, tail) => {
+            Noun::Cell(x, y) => {
                 if *n == 2 {
-                    head
+                    x
                 } else {
-                    tail
+                    y
                 }
             }
             Noun::Atom(_) => panic!("fas operation found no child at this address"),
@@ -208,9 +248,10 @@ pub fn tar(noun: &mut Noun) -> Noun {
     match noun {
         Noun::Atom(_) => panic!("tar cannot be performed on an atom"),
         Noun::Cell(subject, formula) => match &**formula {
-            Noun::Cell(op, args) => match &**op {
-                Noun::Atom(0) => fas(args, subject).clone(),
-                Noun::Atom(1) => *args.clone(),
+            Noun::Cell(x, y) => match &**x {
+                // Instructions
+                Noun::Atom(0) => fas(y, subject).clone(),
+                Noun::Atom(1) => *y.clone(),
                 _ => panic!("TODO: Unimplemented"),
             },
             _ => panic!("TODO: Unimplemented"),

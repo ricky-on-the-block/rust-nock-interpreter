@@ -1,6 +1,80 @@
 use nock_interpreter::*;
 
 #[test]
+fn test_macro_simple_atom() {
+    assert_eq!(noun![42], Noun::Atom(42));
+}
+
+#[test]
+fn test_macro_simple_cell() {
+    assert_eq!(noun![1 2], Noun::cell(Noun::Atom(1), Noun::Atom(2)));
+}
+
+#[test]
+fn test_macro_nested_cell_left() {
+    assert_eq!(
+        noun![[1 2] 3],
+        Noun::cell(Noun::cell(Noun::Atom(1), Noun::Atom(2)), Noun::Atom(3))
+    );
+}
+
+#[test]
+fn test_macro_nested_cell_right() {
+    assert_eq!(
+        noun![1 [2 3]],
+        Noun::Cell(
+            Box::new(Noun::Atom(1)),
+            Box::new(Noun::Cell(Box::new(Noun::Atom(2)), Box::new(Noun::Atom(3))))
+        )
+    );
+}
+
+#[test]
+fn test_macro_deeply_nested_cell_left() {
+    assert_eq!(
+        noun![[1 [2 3]] [4 5]],
+        Noun::Cell(
+            Box::new(Noun::Cell(
+                Box::new(Noun::Atom(1)),
+                Box::new(Noun::Cell(Box::new(Noun::Atom(2)), Box::new(Noun::Atom(3))))
+            )),
+            Box::new(Noun::Cell(Box::new(Noun::Atom(4)), Box::new(Noun::Atom(5))))
+        )
+    );
+}
+
+#[test]
+fn test_macro_deeply_nested_cell_right() {
+    assert_eq!(
+        noun![1 [[[2 3] [44 56]] [6 7]]],
+        Noun::cell(
+            Noun::Atom(1),
+            Noun::cell(
+                Noun::cell(
+                    Noun::cell(Noun::Atom(2), Noun::Atom(3)),
+                    Noun::cell(Noun::Atom(44), Noun::Atom(56))
+                ),
+                Noun::cell(Noun::Atom(6), Noun::Atom(7))
+            )
+        )
+    );
+}
+
+#[test]
+fn test_macro_complex_nested_structure() {
+    assert_eq!(
+        noun![[1 2] [[3 4] [5 6]]],
+        Noun::cell(
+            Noun::cell(Noun::Atom(1), Noun::Atom(2)),
+            Noun::cell(
+                Noun::cell(Noun::Atom(3), Noun::Atom(4)),
+                Noun::cell(Noun::Atom(5), Noun::Atom(6))
+            )
+        )
+    );
+}
+
+#[test]
 fn test_partial_eq_atoms() {
     assert_eq!(Noun::Atom(42), Noun::Atom(42));
     assert_ne!(Noun::Atom(42), Noun::Atom(43));
