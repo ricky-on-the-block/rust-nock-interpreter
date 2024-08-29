@@ -248,25 +248,32 @@ pub fn tar(noun: &mut Noun) -> Noun {
     match noun {
         Noun::Atom(_) => panic!("tar cannot be performed on an atom"),
         Noun::Cell(subject, formula) => match &**formula {
-            Noun::Cell(op, tail) => match &**op {
+            Noun::Cell(op, tail) => match (&**op, &**tail) {
                 // Instructions
-                Noun::Atom(0) => fas(tail, subject).clone(),
-                Noun::Atom(1) => *tail.clone(),
-                Noun::Atom(3) => wut(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
-                Noun::Atom(4) => lus(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
-                Noun::Atom(5) => {
-                    if let Noun::Cell(b, c) = &**tail {
-                        tis(
-                            &tar(&mut Noun::Cell(subject.clone(), b.clone())),
-                            &tar(&mut Noun::Cell(subject.clone(), c.clone())),
-                        )
-                    } else {
-                        panic!("Operation 5 expects a cell as its argument")
-                    }
+                (Noun::Atom(0), _) => fas(tail, subject).clone(),
+                (Noun::Atom(1), _) => *tail.clone(),
+                (Noun::Atom(3), _) => wut(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
+                (Noun::Atom(4), _) => lus(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
+                // Operations that expect a cell as their tail
+                (Noun::Atom(2), Noun::Cell(b, c)) => todo!("Implement instruction 2"),
+                (Noun::Atom(5), Noun::Cell(b, c)) => tis(
+                    &tar(&mut Noun::Cell(subject.clone(), b.clone())),
+                    &tar(&mut Noun::Cell(subject.clone(), c.clone())),
+                ),
+                (Noun::Atom(6), Noun::Cell(b, c)) => todo!("Implement instruction 6"),
+                (Noun::Atom(7), Noun::Cell(b, c)) => todo!("Implement instruction 7"),
+                (Noun::Atom(8), Noun::Cell(b, c)) => todo!("Implement instruction 8"),
+                (Noun::Atom(9), Noun::Cell(b, c)) => todo!("Implement instruction 9"),
+                (Noun::Atom(10), Noun::Cell(b, c)) => todo!("Implement instruction 10"),
+                (Noun::Atom(11), Noun::Cell(b, c)) => todo!("Implement instruction 11"),
+                // Catch case for operations 2 and 5-11 when the tail is not a cell
+                (Noun::Atom(2 | 5..=11), _) => {
+                    panic!("Operation {} expects a cell as its argument", op)
                 }
-                _ => panic!("TODO: Unimplemented"),
+                // Add more operations here as needed
+                _ => panic!("Unimplemented operation or invalid argument structure"),
             },
-            _ => panic!("TODO: Unimplemented"),
+            _ => panic!("Formula must be a cell"),
         },
     }
 }
