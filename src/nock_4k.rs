@@ -252,6 +252,7 @@ pub fn tar(noun: &mut Noun) -> Noun {
                 // Instructions
                 Noun::Atom(0) => fas(y, subject).clone(),
                 Noun::Atom(1) => *y.clone(),
+                Noun::Atom(3) => wut(&tar(&mut Noun::Cell(subject.clone(), y.clone()))),
                 _ => panic!("TODO: Unimplemented"),
             },
             _ => panic!("TODO: Unimplemented"),
