@@ -254,6 +254,16 @@ pub fn tar(noun: &mut Noun) -> Noun {
                 Noun::Atom(1) => *tail.clone(),
                 Noun::Atom(3) => wut(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
                 Noun::Atom(4) => lus(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
+                Noun::Atom(5) => {
+                    if let Noun::Cell(b, c) = &**tail {
+                        tis(
+                            &tar(&mut Noun::Cell(subject.clone(), b.clone())),
+                            &tar(&mut Noun::Cell(subject.clone(), c.clone())),
+                        )
+                    } else {
+                        panic!("Operation 5 expects a cell as its argument")
+                    }
+                }
                 _ => panic!("TODO: Unimplemented"),
             },
             _ => panic!("TODO: Unimplemented"),
