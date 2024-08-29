@@ -10,7 +10,7 @@ impl fmt::Display for Noun {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Noun::Atom(value) => write!(f, "{}", value),
-            Noun::Cell(x, y) => write!(f, "[{} {}]", x, y),
+            Noun::Cell(op, tail) => write!(f, "[{} {}]", op, tail),
         }
     }
 }
@@ -187,11 +187,11 @@ pub fn fas<'a>(address: &Noun, tree: &'a mut Noun) -> &'a mut Noun {
         Noun::Atom(0) => panic!("fas operation does not support 0 address"),
         Noun::Atom(1) => tree,
         Noun::Atom(n) if *n == 2 || *n == 3 => match tree {
-            Noun::Cell(x, y) => {
+            Noun::Cell(op, tail) => {
                 if *n == 2 {
-                    x
+                    op
                 } else {
-                    y
+                    tail
                 }
             }
             Noun::Atom(_) => panic!("fas operation found no child at this address"),
@@ -248,11 +248,12 @@ pub fn tar(noun: &mut Noun) -> Noun {
     match noun {
         Noun::Atom(_) => panic!("tar cannot be performed on an atom"),
         Noun::Cell(subject, formula) => match &**formula {
-            Noun::Cell(x, y) => match &**x {
+            Noun::Cell(op, tail) => match &**op {
                 // Instructions
-                Noun::Atom(0) => fas(y, subject).clone(),
-                Noun::Atom(1) => *y.clone(),
-                Noun::Atom(3) => wut(&tar(&mut Noun::Cell(subject.clone(), y.clone()))),
+                Noun::Atom(0) => fas(tail, subject).clone(),
+                Noun::Atom(1) => *tail.clone(),
+                Noun::Atom(3) => wut(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
+                Noun::Atom(4) => lus(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
                 _ => panic!("TODO: Unimplemented"),
             },
             _ => panic!("TODO: Unimplemented"),
