@@ -258,6 +258,13 @@ pub fn tar(noun: &mut Noun) -> Noun {
         Noun::Atom(_) => panic!("tar cannot be performed on an atom"),
         Noun::Cell(subject, formula) => match &**formula {
             Noun::Cell(op, tail) => match (&**op, &**tail) {
+                // Distribution (cons)
+                (distribute_cell @ Noun::Cell(..), d) => {
+                    Noun::cell(
+                        tar(&mut Noun::Cell(subject.clone(), Box::new(distribute_cell.clone()))),
+                        tar(&mut Noun::Cell(subject.clone(), Box::new(d.clone())))
+                    )
+                },
                 // Instructions
                 (Noun::Atom(0), _) => fas(tail, subject).clone(),
                 (Noun::Atom(1), _) => *tail.clone(),
