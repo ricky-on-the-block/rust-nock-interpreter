@@ -245,6 +245,15 @@ pub fn hax(address: &Noun, replacement: &Noun, tree: &mut Noun) -> Noun {
 }
 
 pub fn tar(noun: &mut Noun) -> Noun {
+    println!("Evaluating tar with:");
+    println!(
+        "  Subject: {}",
+        match noun {
+            Noun::Cell(subject, formula) => format!("[subject:{}, formula:{}]", subject, formula),
+            _ => "Invalid".to_string(),
+        }
+    );
+
     match noun {
         Noun::Atom(_) => panic!("tar cannot be performed on an atom"),
         Noun::Cell(subject, formula) => match &**formula {
@@ -255,7 +264,10 @@ pub fn tar(noun: &mut Noun) -> Noun {
                 (Noun::Atom(3), _) => wut(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
                 (Noun::Atom(4), _) => lus(&tar(&mut Noun::Cell(subject.clone(), tail.clone()))),
                 // Operations that expect a cell as their tail
-                (Noun::Atom(2), Noun::Cell(b, c)) => todo!("Implement instruction 2"),
+                (Noun::Atom(2), Noun::Cell(b, c)) => tar(&mut Noun::cell(
+                    tar(&mut Noun::Cell(subject.clone(), b.clone())),
+                    tar(&mut Noun::Cell(subject.clone(), c.clone())))
+                ),
                 (Noun::Atom(5), Noun::Cell(b, c)) => tis(
                     &tar(&mut Noun::Cell(subject.clone(), b.clone())),
                     &tar(&mut Noun::Cell(subject.clone(), c.clone())),
@@ -271,9 +283,9 @@ pub fn tar(noun: &mut Noun) -> Noun {
                     panic!("Operation {} expects a cell as its argument", op)
                 }
                 // Add more operations here as needed
-                _ => panic!("Unimplemented operation or invalid argument structure"),
+                _ => panic!("Unimplemented operation or invalid argument structure\nsubject: {}\nformula: {}", subject, formula),
             },
-            _ => panic!("Formula must be a cell"),
+            _ => panic!("Formula must be a cell\nformula: {}", formula),
         },
     }
 }
