@@ -334,7 +334,24 @@ pub fn tar(noun: &mut Noun) -> Noun {
                         &mut tar(&mut Noun::cell(*subject.clone(), *d.clone()))),
                     _ => panic!("Invalid structure for instruction 10")
                 },
-                (Noun::Atom(11), Noun::Cell(_b, _c)) => todo!("Implement instruction 11"),
+                (Noun::Atom(11), Noun::Cell(b, c)) => match &**b {
+                    // *[a 11 b c]          *[a c]
+                    Noun::Atom(_) => tar(&mut Noun::cell(*subject.clone(), *c.clone())),
+                    // *[a 11 [b1 b2] c]    *[[[*[a b2] *[a c]] 0] 3]
+                    Noun::Cell(_, b2) =>
+                        tar(
+                            &mut Noun::cell(
+                                Noun::cell(
+                                    Noun::cell(
+                                        tar(&mut Noun::cell(*subject.clone(), *b2.clone())),
+                                        tar(&mut Noun::cell(*subject.clone(), *c.clone()))
+                                    ),
+                                    Noun::Atom(0)
+                                ),
+                                Noun::Atom(3)
+                            )
+                        )
+                },
                 // Catch case for operations 2 and 5-11 when the tail is not a cell
                 (Noun::Atom(2 | 5..=11), _) => {
                     panic!("Operation {} expects a cell as its argument", op)
