@@ -279,7 +279,30 @@ pub fn tar(noun: &mut Noun) -> Noun {
                     &tar(&mut Noun::Cell(subject.clone(), b.clone())),
                     &tar(&mut Noun::Cell(subject.clone(), c.clone())),
                 ),
-                (Noun::Atom(6), Noun::Cell(b, c)) => todo!("Implement instruction 6"),
+                // *[a 6 b c d]    *[a *[[c d] 0 *[[2 3] 0 *[a 4 4 b]]]]
+                (Noun::Atom(6), Noun::Cell(b, six_tail)) => match &**six_tail {
+                    Noun::Cell(c, d) =>
+                    tar(&mut Noun::cell(*subject.clone(),
+                        tar(&mut Noun::cell(
+                        Noun::cell(*c.clone(), *d.clone()),
+                        Noun::cell(
+                            Noun::Atom(0),
+                            tar(&mut Noun::cell(
+                                Noun::cell(Noun::Atom(2), Noun::Atom(3)),
+                                Noun::cell(
+                                    Noun::atom(0),
+                                    tar(&mut Noun::cell(
+                                        *subject.clone(),
+                                        Noun::cell(
+                                            Noun::Atom(4),
+                                            Noun::cell(Noun::Atom(4), *b.clone())
+                                        )
+                                    ))
+                                )
+                            )))
+                        )))),
+                    _ => panic!("Invalid structure for instruction 6")
+                },
                 (Noun::Atom(7), Noun::Cell(b, c)) => tar(&mut Noun::cell(
                     tar(&mut Noun::Cell(subject.clone(), b.clone())),
                     *c.clone()
@@ -292,9 +315,19 @@ pub fn tar(noun: &mut Noun) -> Noun {
                     ),
                     *c.clone()
                 )),
-                (Noun::Atom(9), Noun::Cell(b, c)) => todo!("Implement instruction 9"),
-                (Noun::Atom(10), Noun::Cell(b, c)) => todo!("Implement instruction 10"),
-                (Noun::Atom(11), Noun::Cell(b, c)) => todo!("Implement instruction 11"),
+                // *[a 9 b c]    *[*[a c] 2 [0 1] 0 b]
+                (Noun::Atom(9), Noun::Cell(b, c)) => tar(&mut Noun::cell(
+                    tar(&mut Noun::Cell(subject.clone(), c.clone())),
+                    Noun::cell(
+                        Noun::Atom(2),
+                        Noun::cell(
+                            Noun::cell(Noun::Atom(0), Noun::Atom(1)),
+                            Noun::cell(Noun::Atom(0), *b.clone())
+                        )
+                    )
+                )),
+                (Noun::Atom(10), Noun::Cell(_b, _c)) => todo!("Implement instruction 10"),
+                (Noun::Atom(11), Noun::Cell(_b, _c)) => todo!("Implement instruction 11"),
                 // Catch case for operations 2 and 5-11 when the tail is not a cell
                 (Noun::Atom(2 | 5..=11), _) => {
                     panic!("Operation {} expects a cell as its argument", op)
