@@ -280,7 +280,10 @@ pub fn tar(noun: &mut Noun) -> Noun {
                     &tar(&mut Noun::Cell(subject.clone(), c.clone())),
                 ),
                 (Noun::Atom(6), Noun::Cell(b, c)) => todo!("Implement instruction 6"),
-                (Noun::Atom(7), Noun::Cell(b, c)) => todo!("Implement instruction 7"),
+                (Noun::Atom(7), Noun::Cell(b, c)) => tar(&mut Noun::cell(
+                    tar(&mut Noun::Cell(subject.clone(), b.clone())),
+                    *c.clone()
+                )),
                 (Noun::Atom(8), Noun::Cell(b, c)) => todo!("Implement instruction 8"),
                 (Noun::Atom(9), Noun::Cell(b, c)) => todo!("Implement instruction 9"),
                 (Noun::Atom(10), Noun::Cell(b, c)) => todo!("Implement instruction 10"),
