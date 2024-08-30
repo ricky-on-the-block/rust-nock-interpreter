@@ -326,7 +326,14 @@ pub fn tar(noun: &mut Noun) -> Noun {
                         )
                     )
                 )),
-                (Noun::Atom(10), Noun::Cell(_b, _c)) => todo!("Implement instruction 10"),
+                // *[a 10 [b c] d]     #[b *[a c] *[a d]]
+                (Noun::Atom(10), Noun::Cell(ten_head, d)) => match &**ten_head {
+                    Noun::Cell(b, c) => hax(
+                        &b.clone(),
+                        &tar(&mut Noun::cell(*subject.clone(), *c.clone())),
+                        &mut tar(&mut Noun::cell(*subject.clone(), *d.clone()))),
+                    _ => panic!("Invalid structure for instruction 10")
+                },
                 (Noun::Atom(11), Noun::Cell(_b, _c)) => todo!("Implement instruction 11"),
                 // Catch case for operations 2 and 5-11 when the tail is not a cell
                 (Noun::Atom(2 | 5..=11), _) => {
