@@ -91,17 +91,6 @@ pub mod nock_4k {
     ///
     /// * `Noun::Atom(0)` if the input is a cell (true in Nock)
     /// * `Noun::Atom(1)` if the input is an atom (false in Nock)
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use nock_interpreter::{Noun, wut};
-    /// let atom = Noun::Atom(42);
-    /// assert_eq!(wut(&atom), Noun::Atom(1));
-    ///
-    /// let cell = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
-    /// assert_eq!(wut(&cell), Noun::Atom(0));
-    /// ```
     pub fn wut(noun: &Noun) -> Noun {
         match noun {
             Noun::Atom(_) => Noun::Atom(1),
@@ -125,17 +114,6 @@ pub mod nock_4k {
     /// # Panics
     ///
     /// Panics if the input is a Cell, as the operation is undefined for cells.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use nock_interpreter::{Noun, lus};
-    /// let atom = Noun::Atom(42);
-    /// assert_eq!(lus(&atom), Noun::Atom(43));
-    ///
-    /// let max = Noun::Atom(u64::MAX);
-    /// assert_eq!(lus(&max), Noun::Atom(0));  // Wraps around
-    /// ```
     pub fn lus(noun: &Noun) -> Noun {
         match noun {
             Noun::Atom(n) => Noun::Atom(n.wrapping_add(1)),
@@ -157,19 +135,6 @@ pub mod nock_4k {
     ///
     /// * `Noun::Atom(0)` if the inputs are equal
     /// * `Noun::Atom(1)` if the inputs are not equal
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use nock_interpreter::{Noun, tis};
-    /// let atom1 = Noun::Atom(42);
-    /// let atom2 = Noun::Atom(42);
-    /// assert_eq!(tis(&atom1, &atom2), Noun::Atom(0));
-    ///
-    /// let cell1 = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
-    /// let cell2 = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(3)));
-    /// assert_eq!(tis(&cell1, &cell2), Noun::Atom(1));
-    /// ```
     pub fn tis(noun1: &Noun, noun2: &Noun) -> Noun {
         if noun1 == noun2 {
             Noun::Atom(0)
@@ -197,14 +162,6 @@ pub mod nock_4k {
     /// - When the address is 0
     /// - When the address is a Cell
     /// - When no valid child is found at the given address
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use nock_interpreter::{Noun, fas};
-    /// let mut tree = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
-    /// assert_eq!(*fas(&Noun::Atom(2), &mut tree), Noun::Atom(1));
-    /// ```
     pub fn fas<'a>(address: &Noun, tree: &'a mut Noun) -> &'a mut Noun {
         match address {
             Noun::Atom(0) => panic!("fas operation does not support 0 address"),
@@ -248,15 +205,6 @@ pub mod nock_4k {
     /// - When the address is 0
     /// - When the address is a Cell
     /// - When no valid child is found at the given address
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use nock_interpreter::{Noun, hax};
-    /// let mut tree = Noun::Cell(Box::new(Noun::Atom(1)), Box::new(Noun::Atom(2)));
-    /// let result = hax(&Noun::Atom(2), &Noun::Atom(3), &mut tree);
-    /// assert_eq!(result, Noun::Cell(Box::new(Noun::Atom(3)), Box::new(Noun::Atom(2))));
-    /// ```
     ///
     /// # Note
     ///

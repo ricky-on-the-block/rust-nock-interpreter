@@ -216,8 +216,7 @@ pub mod nock_4k_rc {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::nock_4k_rc::Noun;
+    use crate::nock_4k_rc::nock_4k_rc::Noun;
 
     #[test]
     fn test_nock_decrement() {
