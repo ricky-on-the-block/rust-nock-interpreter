@@ -37,10 +37,7 @@ fn create_decrement_formula_rc() -> Rc<Noun> {
                                                 Noun::cell(
                                                     Noun::cell(
                                                         Noun::atom(4),
-                                                        Noun::cell(
-                                                            Noun::atom(0),
-                                                            Noun::atom(6),
-                                                        ),
+                                                        Noun::cell(Noun::atom(0), Noun::atom(6)),
                                                     ),
                                                     Noun::cell(Noun::atom(0), Noun::atom(7)),
                                                 ),
