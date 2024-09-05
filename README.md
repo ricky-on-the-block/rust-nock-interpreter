@@ -6,7 +6,8 @@ A Rust implementation of the Nock virtual machine for the Nock 4K Definition
 
 This project implements a Nock interpreter in Rust. Nock is a minimalist, Turing-complete combinator calculus designed as the basis for the Urbit platform. Our interpreter:
 
-- Edits input nouns in place where appropriate for efficiency
+- Uses a pure functional implementation in Rust
+- Utilizes `Rc<>` for efficient memory management
 - Uses simple recursion for clear, intuitive implementations
 - Is developed using Behavior-Driven Development (BDD) based on the Nock specification
 
@@ -16,23 +17,15 @@ To use the Nock interpreter, add it to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-nock-interpreter = "0.1.0"
+nock-interpreter = "0.2.0"
 ```
 
 Then, in your Rust code:
 
 ```rs
-use nock_interpreter::{Noun, nock};
-
 fn main() {
-    let input = Noun::Cell(
-        Box::new(Noun::Atom(1)),
-        Box::new(Noun::Cell(
-            Box::new(Noun::Atom(2)),
-            Box::new(Noun::Atom(3))
-        ))
-    );
-    let result = nock(&input);
+    let input = noun![1 [2 3]];
+    let result = nock(input);
     println!("Result: {:?}", result);
 }
 ```
@@ -43,10 +36,26 @@ This project is developed using Test-Driven Development. To run the tests:
 cargo test
 ```
 
+## Benchmarking
+To benchmark the implementation, run:
+```rs
+cargo bench
+```
+
+## Version 0.1.0 -> 0.2.0 Breaking Change
+The interpreter has been re-implemented using `Rc<>` instead of `Box<>` to avoid the deep cloning performance hit. This change resulted in a significant speedup of 12.8x.
+
+### Implementation Details
+- Nouns are no longer edited in place for efficiency.
+- The Interpreter is a pure functional implementation in Rust.
+- It still uses recursion and continues to use BDD/TDD for development.
+
 ## Future Work
 - Ensure all recursion is tail-call optimized for better performance and to handle larger Nock programs
 - Implement a parser to allow Nock input in string format, making it easier to write and test Nock programs
 - Add console logs to display the input and output of the interpreter, aiding in debugging and understanding Nock execution
+- Consider multi-threaded implementation using `Arc<>` over `Rc<>`
+- Consider caching certain aspects of the Noun Binary Tree
 
 ## Nock 4K Definition
 
