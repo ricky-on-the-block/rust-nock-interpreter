@@ -7,12 +7,6 @@ mod rc_op_wut;
 pub mod nock_4k_rc {
     use std::fmt;
     use std::rc::Rc;
-    use std::sync::atomic::{AtomicUsize, Ordering};
-
-    // Box implementation clones 15,066 times for the decrement-test
-    // That is insane, let's work on fixing that
-
-    static CLONE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
     #[derive(Debug, PartialEq)]
     pub enum Noun {
@@ -38,22 +32,6 @@ pub mod nock_4k_rc {
         // Helper function to create a Cell
         pub fn cell(left: Rc<Noun>, right: Rc<Noun>) -> Rc<Self> {
             Rc::new(Noun::Cell(left, right))
-        }
-
-        fn clone(&self) -> Self {
-            let count = CLONE_COUNTER.fetch_add(1, Ordering::SeqCst);
-            let cloned = match self {
-                Noun::Atom(value) => Noun::Atom(value.clone()),
-                Noun::Cell(left, right) => Noun::Cell(left.clone(), right.clone()),
-            };
-
-            println!(
-                "Cloning Noun. Clone count: {}. New value at: {:p}",
-                count + 1,
-                &cloned as *const Noun
-            );
-
-            cloned
         }
     }
 
@@ -86,15 +64,15 @@ pub mod nock_4k_rc {
     }
     impl Noun {
         pub fn tar(noun: Rc<Noun>) -> Rc<Noun> {
-            println!("Evaluating tar with:");
-            println!(
-                "  Subject: {}",
-                match noun.as_ref() {
-                    Noun::Cell(subject, formula) =>
-                        format!("[subject:{}, formula:{}]", subject, formula),
-                    _ => "Invalid".to_string(),
-                }
-            );
+            // println!("Evaluating tar with:");
+            // println!(
+            //     "  Subject: {}",
+            //     match noun.as_ref() {
+            //         Noun::Cell(subject, formula) =>
+            //             format!("[subject:{}, formula:{}]", subject, formula),
+            //         _ => "Invalid".to_string(),
+            //     }
+            // );
 
             match noun.as_ref() {
                 Noun::Atom(_) => panic!("tar cannot be performed on an atom"),
