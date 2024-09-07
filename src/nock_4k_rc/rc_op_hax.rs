@@ -1,5 +1,4 @@
 use crate::nock_4k_rc::nock_4k_rc::Noun;
-use std::rc::Rc;
 
 impl Noun {
     /// Implements the Nock '#' operator, pronounced 'hax'
@@ -23,26 +22,20 @@ impl Noun {
     /// - When the address is 0
     /// - When the address is a Cell
     /// - When no valid child is found at the given address
-    pub(super) fn hax(address: Rc<Noun>, replacement: Rc<Noun>, tree: Rc<Noun>) -> Rc<Noun> {
-        match address.as_ref() {
+    pub(super) fn hax(address: &Noun, replacement: &Noun, tree: &Noun) -> Noun {
+        match address {
             // #[1 a b]          a
-            Noun::Atom(1) => replacement,
+            Noun::Atom(1) => replacement.clone(),
             // #[(a + a) b c]    #[a [b /[(a + a + 1) c]] c]  -  even case
             Noun::Atom(a) if *a % 2 == 0 => Self::hax(
-                Noun::atom(*a / 2),
-                Rc::new(Noun::Cell(
-                    replacement,
-                    Self::fas(Noun::atom(*a + 1), tree.clone()),
-                )),
+                &Noun::Atom(*a / 2),
+                &Noun::cell(replacement.clone(), Self::fas(&Noun::Atom(*a + 1), tree)),
                 tree,
             ),
             // #[(a + a + 1) b c]    #[a [/[(a + a) c] b] c]  -  odd case
             Noun::Atom(a) if *a % 2 == 1 => Self::hax(
-                Noun::atom(*a / 2), // this div floors to get back to base a
-                Rc::new(Noun::Cell(
-                    Self::fas(Noun::atom(*a - 1), tree.clone()),
-                    replacement,
-                )),
+                &Noun::Atom(*a / 2), // this div floors to get back to base a
+                &Noun::cell(Self::fas(&Noun::atom(*a - 1), tree), replacement.clone()),
                 tree,
             ),
             _ => panic!("hax: ERROR 3"),
@@ -59,7 +52,7 @@ mod tests {
     fn test_hax_replace_root() {
         let original = noun![22 33];
         let replacement = noun![11];
-        let result = Noun::hax(noun![1], replacement.clone(), original);
+        let result = Noun::hax(&noun![1], &replacement, &original);
         assert_eq!(result, replacement);
     }
 
@@ -67,7 +60,7 @@ mod tests {
     fn test_hax_replace_atom_addr_2() {
         let original = noun![22 33];
         let replacement = noun![11];
-        let result = Noun::hax(noun![2], replacement, original);
+        let result = Noun::hax(&noun![2], &replacement, &original);
         let expected = noun![11 33];
         assert_eq!(result, expected);
     }
@@ -76,7 +69,7 @@ mod tests {
     fn test_hax_replace_atom_addr_3() {
         let original = noun![22 33];
         let replacement = noun![11];
-        let result = Noun::hax(noun![3], replacement, original);
+        let result = Noun::hax(&noun![3], &replacement, &original);
         let expected = noun![22 11];
         assert_eq!(result, expected);
     }
@@ -85,7 +78,7 @@ mod tests {
     fn test_hax_replace_cell_addr_3() {
         let original = noun![22 [33 44]];
         let replacement = noun![55 66];
-        let result = Noun::hax(noun![3], replacement, original);
+        let result = Noun::hax(&noun![3], &replacement, &original);
         let expected = noun![22 [55 66]];
         assert_eq!(result, expected);
     }
@@ -94,7 +87,7 @@ mod tests {
     fn test_hax_replace_atom_with_cell_addr_3() {
         let original = noun![22 33];
         let replacement = noun![44 55];
-        let result = Noun::hax(noun![3], replacement, original);
+        let result = Noun::hax(&noun![3], &replacement, &original);
         let expected = noun![22 [44 55]];
         assert_eq!(result, expected);
     }
@@ -103,7 +96,7 @@ mod tests {
     fn test_hax_replace_cell_with_atom_addr_3() {
         let original = noun![22 [33 44]];
         let replacement = noun![11];
-        let result = Noun::hax(noun![3], replacement, original);
+        let result = Noun::hax(&noun![3], &replacement, &original);
         let expected = noun![22 11];
         assert_eq!(result, expected);
     }
@@ -112,7 +105,7 @@ mod tests {
     fn test_hax_replace_atom_addr_4() {
         let original = noun![[22 33] 44];
         let replacement = noun![11];
-        let result = Noun::hax(noun![4], replacement, original);
+        let result = Noun::hax(&noun![4], &replacement, &original);
         let expected = noun![[11 33] 44];
         assert_eq!(result, expected);
     }
@@ -121,7 +114,7 @@ mod tests {
     fn test_hax_replace_atom_addr_5() {
         let original = noun![[22 33] 44];
         let replacement = noun![11];
-        let result = Noun::hax(noun![5], replacement, original);
+        let result = Noun::hax(&noun![5], &replacement, &original);
         let expected = noun![[22 11] 44];
         assert_eq!(result, expected);
     }

@@ -1,5 +1,4 @@
 use crate::nock_4k_rc::nock_4k_rc::Noun;
-use std::rc::Rc;
 
 impl Noun {
     /// Implements the Nock '?' operator, pronounced 'wut'
@@ -15,10 +14,10 @@ impl Noun {
     ///
     /// * `Noun::Atom(0)` if the input is a cell (true in Nock)
     /// * `Noun::Atom(1)` if the input is an atom (false in Nock)
-    pub(super) fn wut(noun: Rc<Noun>) -> Rc<Noun> {
-        match noun.as_ref() {
-            Noun::Atom(_) => Noun::atom(1),
-            Noun::Cell(_, _) => Noun::atom(0),
+    pub(super) fn wut(noun: &Noun) -> Noun {
+        match noun {
+            Noun::Atom(_) => Noun::Atom(1),
+            Noun::Cell(_, _) => Noun::Atom(0),
         }
     }
 }
@@ -32,21 +31,21 @@ mod tests {
     #[test]
     fn test_wut_on_atom() {
         let atom = noun![42];
-        assert_eq!(Noun::wut(atom), noun![1]);
+        assert_eq!(Noun::wut(&atom), noun![1]);
 
         let zero_atom = noun![0];
-        assert_eq!(Noun::wut(zero_atom), noun![1]);
+        assert_eq!(Noun::wut(&zero_atom), noun![1]);
     }
 
     #[test]
     fn test_wut_on_cell() {
         let cell = noun![1 2];
-        assert_eq!(Noun::wut(cell), noun![0]);
+        assert_eq!(Noun::wut(&cell), noun![0]);
     }
 
     #[test]
     fn test_wut_on_nested_cell() {
         let nested_cell = noun![1 [2 3]];
-        assert_eq!(Noun::wut(nested_cell), noun![0]);
+        assert_eq!(Noun::wut(&nested_cell), noun![0]);
     }
 }

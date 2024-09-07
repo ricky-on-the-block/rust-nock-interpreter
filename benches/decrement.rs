@@ -1,5 +1,4 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use std::rc::Rc;
 
 use nock_interpreter::nock_4k_box::nock_4k_box::Noun as NounBox;
 use nock_interpreter::nock_4k_rc::nock_4k_rc::Noun as NounRc;
@@ -68,7 +67,7 @@ fn create_decrement_formula_box() -> NounBox {
     )
 }
 
-fn create_decrement_formula_rc() -> Rc<NounRc> {
+fn create_decrement_formula_rc() -> NounRc {
     NounRc::cell(
         NounRc::atom(8),
         NounRc::cell(
@@ -134,8 +133,7 @@ fn bench_nock_4k_rc_decrement(c: &mut Criterion) {
     c.bench_function("nock_4k_rc decrement", |b| {
         b.iter(|| {
             let subject = NounRc::atom(black_box(100));
-            let input = NounRc::cell(subject, formula.clone());
-            black_box(NounRc::tar(input))
+            black_box(NounRc::tar(NounRc::cell(subject, formula.clone())))
         })
     });
 }

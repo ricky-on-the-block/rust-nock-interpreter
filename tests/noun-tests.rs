@@ -104,8 +104,8 @@ mod tests {
         assert_eq!(atom, cloned_atom);
 
         // Ensure it's a deep copy
-        match cloned_atom.as_ref() {
-            Noun::Atom(value) => assert_eq!(*value, 42),
+        match cloned_atom {
+            Noun::Atom(value) => assert_eq!(value, 42),
             _ => panic!("Expected atom"),
         }
     }
@@ -117,7 +117,7 @@ mod tests {
         assert_eq!(cell, cloned_cell);
 
         // Ensure it's a deep copy
-        match cloned_cell.as_ref() {
+        match cloned_cell {
             Noun::Cell(h, t) => {
                 assert_eq!(*h, Noun::atom(1));
                 assert_eq!(*t, Noun::atom(2));
@@ -133,9 +133,9 @@ mod tests {
         assert_eq!(nested, cloned_nested);
 
         // Ensure it's a deep copy
-        match cloned_nested.as_ref() {
+        match cloned_nested {
             Noun::Cell(h, t) => {
-                assert_eq!(**h, Noun::Atom(1));
+                assert_eq!(*h, Noun::Atom(1));
                 match t.as_ref() {
                     Noun::Cell(inner_h, inner_t) => {
                         assert_eq!(**inner_h, Noun::Atom(2));

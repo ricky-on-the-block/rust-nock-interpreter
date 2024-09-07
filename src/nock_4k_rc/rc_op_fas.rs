@@ -1,5 +1,4 @@
 use crate::nock_4k_rc::nock_4k_rc::Noun;
-use std::rc::Rc;
 
 impl Noun {
     /// Implements the Nock '/' operator, pronounced 'fas'
@@ -21,24 +20,25 @@ impl Noun {
     /// - When the address is 0
     /// - When the address is a Cell
     /// - When no valid child is found at the given address
-    pub(super) fn fas(address: Rc<Noun>, tree: Rc<Noun>) -> Rc<Noun> {
-        match address.as_ref() {
+    pub(super) fn fas(address: &Noun, tree: &Noun) -> Noun {
+        match address {
             Noun::Atom(0) => panic!("fas operation does not support 0 address"),
-            Noun::Atom(1) => Rc::clone(&tree),
-            Noun::Atom(n) if *n == 2 || *n == 3 => match tree.as_ref() {
+            Noun::Atom(1) => tree.clone(),
+            Noun::Atom(n) if *n == 2 || *n == 3 => match tree {
                 Noun::Cell(op, tail) => {
                     if *n == 2 {
-                        op.clone() //Rc::clone(op)
+                        op.as_ref().clone()
                     } else {
-                        tail.clone() //Rc::clone(tail)
+                        tail.as_ref().clone()
                     }
                 }
                 Noun::Atom(_) => panic!("fas operation found no child at this address"),
             },
-            Noun::Atom(n) => match tree.as_ref() {
-                Noun::Cell(..) => {
-                    Self::fas(Noun::atom(2 + n % 2), Self::fas(Noun::atom(n / 2), tree))
-                }
+            Noun::Atom(n) => match tree {
+                Noun::Cell(..) => Self::fas(
+                    &Noun::Atom(2 + *n % 2),
+                    &Self::fas(&Noun::Atom(*n / 2), tree),
+                ),
                 Noun::Atom(_) => panic!("fas operation found no child at this address"),
             },
             Noun::Cell(..) => panic!("fas operation does not support cell address"),
@@ -52,73 +52,73 @@ mod tests {
     use crate::*;
 
     // Test the Nock '/' operator, pronounced 'fas'
-    fn create_test_noun() -> Rc<Noun> {
+    fn create_test_noun() -> Noun {
         noun![531 [25 99]]
     }
 
     #[test]
     fn test_fas_root() {
         let noun = create_test_noun();
-        assert_eq!(Noun::fas(noun![1], noun), create_test_noun());
+        assert_eq!(Noun::fas(&noun![1], &noun), create_test_noun());
     }
 
     #[test]
     fn test_fas_left_child_node_1() {
         let noun = create_test_noun();
-        assert_eq!(Noun::fas(noun![2], noun), noun![531]);
+        assert_eq!(Noun::fas(&noun![2], &noun), noun![531]);
     }
 
     #[test]
     fn test_fas_right_child_node_1() {
         let noun = create_test_noun();
         let expected = noun![25 99];
-        assert_eq!(Noun::fas(noun![3], noun), expected);
+        assert_eq!(Noun::fas(&noun![3], &noun), expected);
     }
 
     #[test]
     #[should_panic(expected = "fas operation found no child at this address")]
     fn test_fas_left_child_node_2() {
         let noun = create_test_noun();
-        Noun::fas(noun![4], noun);
+        Noun::fas(&noun![4], &noun);
     }
 
     #[test]
     #[should_panic(expected = "fas operation found no child at this address")]
     fn test_fas_right_child_node_2() {
         let noun = create_test_noun();
-        Noun::fas(noun![5], noun);
+        Noun::fas(&noun![5], &noun);
     }
 
     #[test]
     fn test_fas_left_child_node_3() {
         let noun = create_test_noun();
-        assert_eq!(Noun::fas(noun![6], noun), noun![25]);
+        assert_eq!(Noun::fas(&noun![6], &noun), noun![25]);
     }
 
     #[test]
     fn test_fas_right_child_node_3() {
         let noun = create_test_noun();
-        assert_eq!(Noun::fas(noun![7], noun), noun![99]);
+        assert_eq!(Noun::fas(&noun![7], &noun), noun![99]);
     }
 
     #[test]
     #[should_panic(expected = "fas operation found no child at this address")]
     fn test_fas_out_of_bounds() {
         let noun = create_test_noun();
-        Noun::fas(noun![12], noun);
+        Noun::fas(&noun![12], &noun);
     }
 
     #[test]
     fn test_fas_on_atom() {
         let noun = noun![42];
-        assert_eq!(Noun::fas(noun![1], noun), noun![42]);
+        assert_eq!(Noun::fas(&noun![1], &noun), noun![42]);
     }
 
     #[test]
     #[should_panic(expected = "fas operation does not support 0 address")]
     fn test_fas_with_zero_address() {
         let noun = create_test_noun();
-        Noun::fas(noun![0], noun);
+        Noun::fas(&noun![0], &noun);
     }
 
     #[test]
@@ -126,6 +126,6 @@ mod tests {
     fn test_fas_with_cell_address() {
         let noun = create_test_noun();
         let address = noun![1 2];
-        Noun::fas(address, noun);
+        Noun::fas(&address, &noun);
     }
 }
