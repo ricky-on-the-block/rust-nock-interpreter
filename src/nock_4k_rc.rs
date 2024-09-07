@@ -35,33 +35,6 @@ pub mod nock_4k_rc {
         }
     }
 
-    #[macro_export]
-    macro_rules! noun {
-        // Rule 1: Match a single literal (base case for atoms)
-        [$num:literal] => {
-            Noun::atom($num)
-        };
-
-        // Rule 2: Match two literals (simple cell)
-        [$num1:literal $num2:literal] => {
-            Noun::cell(Noun::atom($num1), Noun::atom($num2))
-        };
-
-        // Rule 3: Match two nested structures
-        [[$($left:tt)+] [$($right:tt)+]] => {
-            Noun::cell(noun![$($left)+], noun![$($right)+])
-        };
-
-        // Rule 4: Match a nested structure on the left and a single token on the right
-        [[$($left:tt)+] $right:tt] => {
-            Noun::cell(noun![$($left)+], noun![$right])
-        };
-
-        // Rule 5: Match a single token on the left and a nested structure on the right
-        [$left:tt [$($right:tt)+]] => {
-            Noun::cell(noun![$left], noun![$($right)+])
-        };
-    }
     impl Noun {
         pub fn tar(noun: Rc<Noun>) -> Rc<Noun> {
             // println!("Evaluating tar with:");
@@ -86,7 +59,7 @@ pub mod nock_4k_rc {
                             )
                         },
                         // Instructions
-                        (Noun::Atom(0), _) => Self::fas(tail.clone(), subject.clone()).clone(),
+                        (Noun::Atom(0), _) => Self::fas(tail.clone(), subject.clone()),
                         (Noun::Atom(1), _) => tail.clone(),
                         (Noun::Atom(3), _) => Self::wut(Self::tar(Noun::cell(subject.clone(), tail.clone()))),
                         (Noun::Atom(4), _) => Self::lus(Self::tar(Noun::cell(subject.clone(), tail.clone()))),
